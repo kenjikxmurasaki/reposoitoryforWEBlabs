@@ -1,3 +1,4 @@
+// Налаштування складності:
 // time  — дозволений час між клікми (мс)
 // size  — розмір фігури (px)
 // far   — початкова ймовірність, що наступна фігура з’явиться далеко від попередньої
@@ -19,6 +20,12 @@ const bestEl = document.getElementById("best");
 const difficultySel = document.getElementById("difficulty");
 const shapeSel = document.getElementById("shape");
 const colorInput = document.getElementById("color");
+
+// Клавіші, які відстежуються: блок на сторінці, лічильник і кількість натискань
+const KEYS = {
+  KeyZ: { box: document.getElementById("key-z"), counter: document.getElementById("count-z"), count: 0 },
+  KeyX: { box: document.getElementById("key-x"), counter: document.getElementById("count-x"), count: 0 }
+};
 
 // Стан гри
 let playing = false;
@@ -115,6 +122,10 @@ function startGame() {
   score = 0;
   prevPos = null;
   scoreEl.textContent = score;
+  for (const code in KEYS) {
+    KEYS[code].count = 0;
+    KEYS[code].counter.textContent = 0;
+  }
   playing = true;
 
   document.documentElement.style.setProperty("--target", colorInput.value);
@@ -174,8 +185,18 @@ document.addEventListener("mousemove", function (e) {
 // Клавіша «клікає» у тій точці, де зараз знаходиться курсор.
 
 document.addEventListener("keydown", function (e) {
-  if (e.repeat || !playing || !mouse) return;
-  if (e.code !== "KeyZ" && e.code !== "KeyX") return;
+  if (!KEYS[e.code]) return;
+
+  // підсвічування натиснутої клавіші (поки вона затиснута)
+  KEYS[e.code].box.classList.add("active");
+
+  if (e.repeat || !playing) return;
+
+  // лічильник натискань
+  KEYS[e.code].count++;
+  KEYS[e.code].counter.textContent = KEYS[e.code].count;
+
+  if (!mouse) return;
 
   const onTarget = distance(mouse, targetInfo) <= targetInfo.size / 2;
   if (onTarget) {
@@ -183,6 +204,15 @@ document.addEventListener("keydown", function (e) {
   } else {
     endGame("Промах");
   }
+});
+
+document.addEventListener("keyup", function (e) {
+  if (KEYS[e.code]) KEYS[e.code].box.classList.remove("active");
+});
+
+// якщо вікно втратило фокус, прибираємо підсвічування
+window.addEventListener("blur", function () {
+  for (const code in KEYS) KEYS[code].box.classList.remove("active");
 });
 
 // Колір і форма застосовуються на початку гри
