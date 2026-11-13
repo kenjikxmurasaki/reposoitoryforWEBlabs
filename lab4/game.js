@@ -171,8 +171,6 @@ area.addEventListener("mousedown", function (e) {
   if (!playing) return;
   if (e.target === target) {
     hit();
-  } else {
-    endGame("Промах");
   }
 });
 
@@ -201,8 +199,6 @@ document.addEventListener("keydown", function (e) {
   const onTarget = distance(mouse, targetInfo) <= targetInfo.size / 2;
   if (onTarget) {
     hit();
-  } else {
-    endGame("Промах");
   }
 });
 
